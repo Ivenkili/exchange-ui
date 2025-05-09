@@ -1,0 +1,95 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>KCdeChange</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;600&display=swap');
+
+    body {
+      background-image: url('https://wallpapercave.com/wp/wp8375092.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      font-family: 'Quicksand', sans-serif;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center bg-pink-100 bg-opacity-80">
+
+  <div class="bg-white bg-opacity-70 backdrop-blur-md p-8 rounded-3xl shadow-2xl w-full max-w-md border border-pink-200">
+    <h1 class="text-4xl font-bold text-center text-pink-600 mb-6" style="font-family: 'Pacifico', cursive;">3lla's Exchange</h1>
+
+    <form class="space-y-4">
+      <input
+        type="number"
+        id="amount"
+        placeholder="Enter USD Amount"
+        class="w-full px-4 py-3 bg-pink-50 text-pink-900 border border-pink-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-400 placeholder-pink-400"
+      />
+      <select
+        id="currency"
+        class="w-full px-4 py-3 bg-pink-50 text-pink-900 border border-pink-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-400"
+      >
+        <option value="" disabled selected>Select currency</option>
+      </select>
+      <input
+        type="button"
+        value="Check Rate"
+        id="check"
+        class="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white py-3 rounded-xl font-bold shadow-lg hover:opacity-90 transition duration-300"
+      />
+    </form>
+
+    <div id="result" class="mt-6 text-center">
+      <div id="dollar" class="text-lg text-pink-700 font-medium"></div>
+      <div id="naira" class="text-2xl font-bold text-purple-700 mt-2"></div>
+    </div>
+  </div>
+
+  <script>
+    let btn = document.querySelector("#check");
+
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+
+      let amount = document.getElementById("amount").value;
+      let currency = document.getElementById("currency").value;
+
+      if (!amount || !currency) return;
+
+      fetch("https://open.er-api.com/v6/latest/USD")
+        .then((response) => response.json())
+        .then((data) => {
+          document.getElementById("dollar").innerText = `USD: $${amount}`;
+          document.getElementById("naira").innerText =
+            `${currency}: ${(data.rates[currency] * amount).toFixed(2)}`;
+        })
+        .catch((error) => {
+          document.getElementById("naira").innerText = "Error fetching rates.";
+          console.error("Error:", error);
+        });
+    });
+
+    // Populate dropdown
+    fetch("https://open.er-api.com/v6/latest/USD")
+      .then((response) => response.json())
+      .then((data) => {
+        let currencies = Object.keys(data.rates);
+        let select = document.getElementById("currency");
+        currencies.forEach((currency) => {
+          let option = document.createElement("option");
+          option.value = currency;
+          option.innerText = currency;
+          select.appendChild(option);
+        });
+      })
+      .catch((error) => {
+        console.error("Error loading currency list:", error);
+      });
+  </script>
+</body>
+</html>
